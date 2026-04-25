@@ -7,18 +7,19 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: const Color(0xFFF7F7F7), // Light grey background from mockup
       body: SafeArea(
         child: Stack(
           children: [
+            // Background Emblem
             Positioned(
-              top: 330,
-              right: -120,
+              top: 250, // Adjusted higher because the form is longer
+              right: -115,
               child: Opacity(
-                opacity: 0.04,
+                opacity: 0.045,
                 child: Image.asset(
                   'assets/images/logo-emblem-stylesync.png',
-                  width: 420,
+                  width: 430,
                 ),
               ),
             ),
@@ -29,23 +30,25 @@ class RegisterScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 36),
 
+                  // Logo
                   Image.asset(
                     'assets/images/logo-text-stylesync.png',
-                    width: 260,
+                    width: 240,
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 32),
 
+                  // Headers
                   const Text(
                     'Create an account',
                     style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
                   const Text(
                     'Enter your email to sign up for this app',
@@ -55,37 +58,39 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 24),
 
+                  // Form Fields
                   _inputLabel('Name'),
                   const _AuthTextField(hintText: 'Perera'),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   _inputLabel('Email'),
                   const _AuthTextField(hintText: 'email@domain.com'),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   _inputLabel('Password'),
                   const _AuthTextField(
-                    hintText: 'xxxxxxxx',
+                    hintText: 'xxxxxxx',
                     obscureText: true,
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   _inputLabel('Confirm Password'),
                   const _AuthTextField(
-                    hintText: 'xxxxxxxx',
+                    hintText: 'xxxxxxx',
                     obscureText: true,
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 24),
 
+                  // Create Account Button
                   SizedBox(
                     width: double.infinity,
-                    height: 40,
+                    height: 48, // Taller button for better tap area
                     child: ElevatedButton(
                       onPressed: () => context.go('/'),
                       style: ElevatedButton.styleFrom(
@@ -93,57 +98,61 @@ class RegisterScreen extends StatelessWidget {
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(7),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Text(
                         'Create Account',
-                        style: TextStyle(fontSize: 15),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
+                  // Divider
                   const Text(
                     'or',
                     style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.black45,
+                      fontSize: 14,
+                      color: Colors.black54,
                     ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Social Buttons (Grey background)
+                  _socialButton(
+                    logoPath: 'assets/images/google.png',
+                    text: 'Continue with Google',
                   ),
 
                   const SizedBox(height: 12),
 
                   _socialButton(
-                    icon: 'G',
-                    text: 'Continue with Google',
-                    iconColor: Colors.blue,
-                  ),
-
-                  const SizedBox(height: 9),
-
-                  _socialButton(
-                    icon: '',
+                    logoPath: 'assets/images/apple-logo.png',
                     text: 'Continue with Apple',
-                    iconColor: Colors.black,
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 32),
 
+                  // Bottom Links
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
                         'You have already account ',
-                        style: TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: 13),
                       ),
                       GestureDetector(
                         onTap: () => context.go('/'),
                         child: const Text(
                           'Login',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: Colors.blue,
                             fontWeight: FontWeight.w600,
                           ),
@@ -152,13 +161,19 @@ class RegisterScreen extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
+                  // Terms and Privacy
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 18),
+                    padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Text.rich(
                       TextSpan(
                         text: 'By clicking continue, you agree to our ',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                          height: 1.5,
+                        ),
                         children: [
                           TextSpan(
                             text: 'Terms of Service',
@@ -172,15 +187,10 @@ class RegisterScreen extends StatelessWidget {
                         ],
                       ),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black45,
-                        height: 1.4,
-                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -194,11 +204,12 @@ class RegisterScreen extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.only(bottom: 8),
         child: Text(
           text,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
         ),
@@ -207,38 +218,40 @@ class RegisterScreen extends StatelessWidget {
   }
 
   static Widget _socialButton({
-    required String icon,
+    required String logoPath,
     required String text,
-    required Color iconColor,
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 40,
+      height: 48,
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFD1CFCF),
+          backgroundColor: const Color(0xFFCECECE), // Grey background to match mockup
           foregroundColor: Colors.black,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              icon,
-              style: TextStyle(
-                fontSize: 22,
-                color: iconColor,
-                fontWeight: FontWeight.bold,
-              ),
+            Image.asset(
+              logoPath,
+              width: 22,
+              height: 22,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.image_not_supported, color: Colors.black54, size: 22);
+              },
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Text(
               text,
-              style: const TextStyle(fontSize: 15),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -247,6 +260,7 @@ class RegisterScreen extends StatelessWidget {
   }
 }
 
+// Reusing the same TextField style from LoginScreen for consistency
 class _AuthTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
@@ -259,25 +273,25 @@ class _AuthTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 48, 
       child: TextField(
         obscureText: obscureText,
-        style: const TextStyle(fontSize: 14),
+        style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(
             color: Colors.black38,
-            fontSize: 14,
+            fontSize: 15,
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: Color(0xFFDADADA)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: Colors.black),
           ),
         ),

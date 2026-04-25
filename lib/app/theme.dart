@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
@@ -9,6 +10,7 @@ class AppTheme {
       centerTitle: true,
       elevation: 0,
     ),
+   textTheme: GoogleFonts.kodchasanTextTheme(),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,

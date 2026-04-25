@@ -19,7 +19,7 @@ class EcommerceApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Ecommerce UI',
+        title: 'StyleSync Clothing Store',
         theme: AppTheme.lightTheme,
         routerConfig: appRouter,
       ),
