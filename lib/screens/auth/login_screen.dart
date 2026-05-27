@@ -3,10 +3,25 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white, // Updated to match white background
@@ -41,14 +56,18 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 68),
 
                   _inputLabel('Email'),
-                  const _AuthTextField(hintText: 'email@domain.com'),
+                  _AuthTextField(
+                    hintText: 'email@domain.com',
+                    controller: _emailController,
+                  ),
 
                   const SizedBox(height: 12),
 
                   _inputLabel('Password'),
-                  const _AuthTextField(
+                  _AuthTextField(
                     hintText: 'xxxxxxx',
                     obscureText: true,
+                    controller: _passwordController,
                   ),
 
                   const SizedBox(height: 10),
@@ -56,27 +75,51 @@ class LoginScreen extends StatelessWidget {
                   // Login Button
                   SizedBox(
                     width: double.infinity,
-                    height: 48, // Slightly taller for better touch target
+                    height: 48,
                     child: ElevatedButton(
-                      onPressed: () {
-                        context.read<AuthProvider>().login();
-                        context.go('/home');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8), // Standard radius
-                        ),
-                      ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
-                          fontSize: 16, // Matching the font size in UI
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              setState(() => _isLoading = true);
+
+                              // Call the provider
+                              final error = await context
+                                  .read<AuthProvider>()
+                                  .login(
+                                    _emailController.text,
+                                    _passwordController.text,
+                                  );
+
+                              setState(() => _isLoading = false);
+
+                              if (error == null) {
+                                if (context.mounted) context.go('/home');
+                              } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ),
 
@@ -84,16 +127,13 @@ class LoginScreen extends StatelessWidget {
 
                   const Text(
                     'or',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
 
                   const SizedBox(height: 16),
 
                   _socialButton(
-                    logoPath: 'assets/images/google.png', 
+                    logoPath: 'assets/images/google.png',
                     text: 'Continue with Google',
                   ),
 
@@ -176,7 +216,7 @@ class LoginScreen extends StatelessWidget {
           text,
           style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w500, 
+            fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
         ),
@@ -190,17 +230,15 @@ class LoginScreen extends StatelessWidget {
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 48, 
+      height: 48,
       child: OutlinedButton(
         onPressed: () {},
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
-          side: const BorderSide(color: Color(0xFFDADADA)), 
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          side: const BorderSide(color: Color(0xFFDADADA)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -212,16 +250,17 @@ class LoginScreen extends StatelessWidget {
               height: 22,
               errorBuilder: (context, error, stackTrace) {
                 // Shows a default grey icon if the image fails to load
-                return const Icon(Icons.image_not_supported, color: Colors.grey, size: 22);
+                return const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.grey,
+                  size: 22,
+                );
               },
             ),
             const SizedBox(width: 12),
             Text(
               text,
-              style: const TextStyle(
-                fontSize: 16, 
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -233,10 +272,12 @@ class LoginScreen extends StatelessWidget {
 class _AuthTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
+  final TextEditingController? controller;
 
   const _AuthTextField({
     required this.hintText,
     this.obscureText = false,
+    this.controller,
   });
 
   @override
@@ -244,14 +285,12 @@ class _AuthTextField extends StatelessWidget {
     return SizedBox(
       height: 48, // Consistent field height
       child: TextField(
+        controller: controller,
         obscureText: obscureText,
         style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Colors.black38,
-            fontSize: 15,
-          ),
+          hintStyle: const TextStyle(color: Colors.black38, fontSize: 15),
           filled: true,
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
