@@ -18,4 +18,17 @@ class Product {
     required this.description,
     required this.featured,
   });
+
+  factory Product.fromFirestore(Map<String, dynamic> data, String documentId) {
+    return Product(
+      id: data['id'] ?? '',
+      name: data['name'] ?? '',
+      image: data['image'] ?? '',
+      category: data['category'] ?? '',
+      price: (data['price'] as num?)?.toDouble() ?? 0.0,
+      rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
+      description: data['description'] ?? '',
+      featured: data['featured'] ?? false,
+    );
+  }
 }
