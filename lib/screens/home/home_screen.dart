@@ -199,7 +199,6 @@ class HomeScreen extends StatelessWidget {
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 20,
                       childAspectRatio: 0.65,
-                      // Now using the live data from your provider!
                       children: productProvider.products.map((product) {
                         return _ProductCard(product: product);
                       }).toList(),

@@ -19,6 +19,19 @@ class Product {
     required this.featured,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+      'category': category,
+      'price': price,
+      'rating': rating,
+      'description': description,
+      'featured': featured,
+    };
+  }
+
   factory Product.fromFirestore(Map<String, dynamic> data, String documentId) {
     return Product(
       id: data['id'] ?? '',
@@ -29,6 +42,19 @@ class Product {
       rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
       description: data['description'] ?? '',
       featured: data['featured'] ?? false,
+    );
+  }
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      image: json['image'] ?? '',
+      category: json['category'] ?? '',
+      price: (json['price'] ?? 0.0).toDouble(),
+      rating: (json['rating'] ?? 0.0).toDouble(),
+      description: json['description'] ?? '',
+      featured: json['featured'] ?? false,
     );
   }
 }
