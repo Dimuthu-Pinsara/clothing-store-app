@@ -8,6 +8,13 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+
+    final userName = user?.displayName == null || user!.displayName!.isEmpty
+        ? 'Add your name'
+        : user.displayName!;
+    final userEmail = user?.email ?? 'No email found';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -37,26 +44,33 @@ class ProfileScreen extends StatelessWidget {
                   width: 3,
                 ),
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 50,
-                backgroundImage: AssetImage('images/profile/profile.jpg'),
-                backgroundColor: Color(0xFFE0E0E0),
+                backgroundColor: const Color(0xFFE0E0E0),
+
+                backgroundImage: user?.photoURL != null
+                    ? NetworkImage(user!.photoURL!)
+                    : null,
+
+                child: user?.photoURL == null
+                    ? const Icon(Icons.person, size: 50, color: Colors.white)
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
 
-            const Text(
-              'Meleena Karunarathna',
-              style: TextStyle(
+            Text(
+              userName,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'meleenakarunarathna@gmail.com',
-              style: TextStyle(fontSize: 14, color: Colors.black87),
+            Text(
+              userEmail,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 32),
 
@@ -75,62 +89,36 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Menu Items
                   _ProfileMenuTile(
                     icon: Icons.person_outline,
                     title: 'Edit your profile',
                     subtitle: 'Name, Email, Profile Picture',
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/edit-profile');
+                    },
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
                   _ProfileMenuTile(
                     icon: Icons.shopping_cart_outlined,
                     title: 'Order History',
                     subtitle: 'View and track your previous orders',
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/orders');
+                    },
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
                   _ProfileMenuTile(
                     icon: Icons.location_on_outlined,
                     title: 'Shipping Addresses',
                     subtitle: 'Manage your delivery locations',
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/edit-profile');
+                    },
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
 
                   const SizedBox(height: 32),
 
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 4,
-                    ),
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.shopping_bag_outlined,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    title: const Text(
-                      'My Orders',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    trailing: const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: Colors.black54,
-                    ),
-                    onTap: () {
-                      context.push('/orders');
-                    },
-                  ),
-
-                  // Logout Button
                   Center(
                     child: SizedBox(
                       width: 160,
@@ -172,7 +160,6 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// Helper Widget for Menu Items
 class _ProfileMenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -199,7 +186,7 @@ class _ProfileMenuTile extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: const BoxDecoration(
-                color: Color(0xFFE8E8E8), // Light grey circle
+                color: Color(0xFFE8E8E8),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: Colors.black87, size: 24),
@@ -254,15 +241,11 @@ class _BottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           GestureDetector(
-            onTap: () => context.go('/home'), // Adjust route as needed
+            onTap: () => context.go('/home'),
             child: const Icon(Icons.home, size: 28, color: Colors.black87),
           ),
           const Icon(Icons.notifications_none, size: 28, color: Colors.black87),
-          const Icon(
-            Icons.person,
-            size: 28,
-            color: Colors.black,
-          ), // Filled icon for active state
+          const Icon(Icons.person, size: 28, color: Colors.black),
         ],
       ),
     );
