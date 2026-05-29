@@ -10,6 +10,7 @@ import '../screens/profile/profile_screen.dart';
 import '../screens/notification/notification_screen.dart';
 import '../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
+import '../screens/order/order_history_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -70,6 +71,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/notifications',
       builder: (context, state) => const NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/orders',
+      builder: (context, state) => const OrderHistoryScreen(),
     ),
   ],
 );

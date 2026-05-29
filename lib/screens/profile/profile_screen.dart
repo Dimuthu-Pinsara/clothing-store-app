@@ -27,8 +27,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            
-            // Profile Image with Blue Ring
+
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
@@ -40,13 +39,12 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: const CircleAvatar(
                 radius: 50,
-                backgroundImage: AssetImage('images/profile/profile.jpg'), 
+                backgroundImage: AssetImage('images/profile/profile.jpg'),
                 backgroundColor: Color(0xFFE0E0E0),
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Name and Email
+
             const Text(
               'Meleena Karunarathna',
               style: TextStyle(
@@ -58,14 +56,10 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 4),
             const Text(
               'meleenakarunarathna@gmail.com',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 32),
-            
-            // Account Details Section
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -80,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Menu Items
                   _ProfileMenuTile(
                     icon: Icons.person_outline,
@@ -103,9 +97,39 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {},
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
-                  
+
                   const SizedBox(height: 32),
-                  
+
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 4,
+                    ),
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.shopping_bag_outlined,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    title: const Text(
+                      'My Orders',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    trailing: const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Colors.black54,
+                    ),
+                    onTap: () {
+                      context.push('/orders');
+                    },
+                  ),
+
                   // Logout Button
                   Center(
                     child: SizedBox(
@@ -113,7 +137,9 @@ class ProfileScreen extends StatelessWidget {
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFDada), // Light pink/red background
+                          backgroundColor: const Color(
+                            0xFFFFDada,
+                          ), // Light pink/red background
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -176,14 +202,10 @@ class _ProfileMenuTile extends StatelessWidget {
                 color: Color(0xFFE8E8E8), // Light grey circle
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: Colors.black87,
-                size: 24,
-              ),
+              child: Icon(icon, color: Colors.black87, size: 24),
             ),
             const SizedBox(width: 16),
-            
+
             // Text Details
             Expanded(
               child: Column(
@@ -200,21 +222,14 @@ class _ProfileMenuTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],
               ),
             ),
-            
+
             // Chevron
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.black54,
-              size: 22,
-            ),
+            const Icon(Icons.chevron_right, color: Colors.black54, size: 22),
           ],
         ),
       ),
@@ -233,9 +248,7 @@ class _BottomNavBar extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFF0F0F0)),
-        ),
+        border: Border(top: BorderSide(color: Color(0xFFF0F0F0))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -245,7 +258,11 @@ class _BottomNavBar extends StatelessWidget {
             child: const Icon(Icons.home, size: 28, color: Colors.black87),
           ),
           const Icon(Icons.notifications_none, size: 28, color: Colors.black87),
-          const Icon(Icons.person, size: 28, color: Colors.black), // Filled icon for active state
+          const Icon(
+            Icons.person,
+            size: 28,
+            color: Colors.black,
+          ), // Filled icon for active state
         ],
       ),
     );
