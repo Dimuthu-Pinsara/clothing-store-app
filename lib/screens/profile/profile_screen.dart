@@ -8,6 +8,13 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+
+    final userName = user?.displayName == null || user!.displayName!.isEmpty
+        ? 'Add your name'
+        : user.displayName!;
+    final userEmail = user?.email ?? 'No email found';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -27,8 +34,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            
-            // Profile Image with Blue Ring
+
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
@@ -38,34 +44,36 @@ class ProfileScreen extends StatelessWidget {
                   width: 3,
                 ),
               ),
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 50,
-                backgroundImage: AssetImage('images/profile/profile.jpg'), 
-                backgroundColor: Color(0xFFE0E0E0),
+                backgroundColor: const Color(0xFFE0E0E0),
+
+                backgroundImage: user?.photoURL != null
+                    ? NetworkImage(user!.photoURL!)
+                    : null,
+
+                child: user?.photoURL == null
+                    ? const Icon(Icons.person, size: 50, color: Colors.white)
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Name and Email
-            const Text(
-              'Meleena Karunarathna',
-              style: TextStyle(
+
+            Text(
+              userName,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'meleenakarunarathna@gmail.com',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+            Text(
+              userEmail,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
             const SizedBox(height: 32),
-            
-            // Account Details Section
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -80,40 +88,46 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Menu Items
+
                   _ProfileMenuTile(
                     icon: Icons.person_outline,
                     title: 'Edit your profile',
                     subtitle: 'Name, Email, Profile Picture',
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/edit-profile');
+                    },
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
                   _ProfileMenuTile(
                     icon: Icons.shopping_cart_outlined,
                     title: 'Order History',
                     subtitle: 'View and track your previous orders',
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/orders');
+                    },
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
                   _ProfileMenuTile(
                     icon: Icons.location_on_outlined,
                     title: 'Shipping Addresses',
                     subtitle: 'Manage your delivery locations',
-                    onTap: () {},
+                    onTap: () {
+                      context.push('/edit-profile');
+                    },
                   ),
                   const Divider(height: 1, color: Color(0xFFEAEAEA)),
-                  
+
                   const SizedBox(height: 32),
-                  
-                  // Logout Button
+
                   Center(
                     child: SizedBox(
                       width: 160,
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFDada), // Light pink/red background
+                          backgroundColor: const Color(
+                            0xFFFFDada,
+                          ), // Light pink/red background
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -146,7 +160,6 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// Helper Widget for Menu Items
 class _ProfileMenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -173,17 +186,13 @@ class _ProfileMenuTile extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: const BoxDecoration(
-                color: Color(0xFFE8E8E8), // Light grey circle
+                color: Color(0xFFE8E8E8),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: Colors.black87,
-                size: 24,
-              ),
+              child: Icon(icon, color: Colors.black87, size: 24),
             ),
             const SizedBox(width: 16),
-            
+
             // Text Details
             Expanded(
               child: Column(
@@ -200,21 +209,14 @@ class _ProfileMenuTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],
               ),
             ),
-            
+
             // Chevron
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.black54,
-              size: 22,
-            ),
+            const Icon(Icons.chevron_right, color: Colors.black54, size: 22),
           ],
         ),
       ),
@@ -233,19 +235,17 @@ class _BottomNavBar extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFF0F0F0)),
-        ),
+        border: Border(top: BorderSide(color: Color(0xFFF0F0F0))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           GestureDetector(
-            onTap: () => context.go('/home'), // Adjust route as needed
+            onTap: () => context.go('/home'),
             child: const Icon(Icons.home, size: 28, color: Colors.black87),
           ),
           const Icon(Icons.notifications_none, size: 28, color: Colors.black87),
-          const Icon(Icons.person, size: 28, color: Colors.black), // Filled icon for active state
+          const Icon(Icons.person, size: 28, color: Colors.black),
         ],
       ),
     );

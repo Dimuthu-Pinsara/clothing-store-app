@@ -12,7 +12,7 @@ final List<Product> dummyProducts = [
   Product(
     id: 'SS0150', 
     name: 'Tee Love Mesh Sleeve\nWrap neck Crop Top',
-    image: 'assets/images/products/crop-tops-2.webp',
+    image: 'https://hkhvnbk2a1.ufs.sh/f/viaFzH8Bk9QshhPjuItyRbANf3McsTLu67UnEIKaWdOB8D5p',
     category: 'Crop-tops',
     price: 2000.00,
     rating: 4.5,
@@ -22,7 +22,7 @@ final List<Product> dummyProducts = [
   Product(
     id: 'SS0156', 
     name: 'Tee Love Zipper Font\nSchiffli Crop Top',
-    image: 'assets/images/products/crop-tops.webp',
+    image: 'https://hkhvnbk2a1.ufs.sh/f/viaFzH8Bk9QsbByX0eRcD8y6mS3rtpGFxVlOhP2v4gfUnRIw',
     category: 'Crop-tops',
     price: 1500.00,
     rating: 4.8, // Assuming a rating for the UI
@@ -33,7 +33,7 @@ final List<Product> dummyProducts = [
   Product(
     id: 'TS0101',
     name: 'Classic Urban T-Shirt',
-    image: 'assets/images/products/t-shirts.webp',
+    image: 'https://hkhvnbk2a1.ufs.sh/f/viaFzH8Bk9Qs4aAoOVTZVwsW63QvYkKe8lHqcgyxmiz7EdnR',
     category: 'T-Shirts',
     price: 1200.00,
     rating: 4.2,
@@ -43,7 +43,7 @@ final List<Product> dummyProducts = [
   Product(
     id: 'DNM020',
     name: 'High-Rise Vintage Denim',
-    image: 'assets/images/products/denims.webp',
+    image: 'https://hkhvnbk2a1.ufs.sh/f/viaFzH8Bk9QssUgnpoHh97IxQCHqGSOcgAr6NL1XtameoR3T',
     category: 'Denim',
     price: 3500.00,
     rating: 4.6,

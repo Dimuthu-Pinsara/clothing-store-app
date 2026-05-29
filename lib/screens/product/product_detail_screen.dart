@@ -167,8 +167,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
               // Description
               Text(
-                product
-                    .description,
+                product.description,
                 style: const TextStyle(
                   fontSize: 14,
                   height: 1.5,
@@ -201,7 +200,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 onPressed: () {
                   context.read<CartProvider>().addToCart(product);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Added to cart')),
+                    SnackBar(
+                      content: Text('${product.name} added to cart!'),
+                      duration: const Duration(seconds: 2),
+                      action: SnackBarAction(
+                        label: 'UNDO',
+                        onPressed: () {
+                          context.read<CartProvider>().removeSingleItem(
+                            product.id,
+                          );
+                        },
+                      ),
+                    ),
                   );
                 },
                 child: const Text(

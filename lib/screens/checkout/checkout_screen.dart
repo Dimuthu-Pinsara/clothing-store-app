@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/order_provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -8,10 +13,87 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  // 1. Added controllers for all your UI fields
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _zipController = TextEditingController();
+  final _phoneController = TextEditingController(); // Added for the DB requirement
+  
   String _selectedPayment = 'card'; // 'card', 'gpay', 'paypal'
 
   @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _zipController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  void _submitOrder() async {
+    final cartProvider = context.read<CartProvider>();
+    
+    // Validate inputs
+    if (_addressController.text.isEmpty || 
+        _cityController.text.isEmpty || 
+        _phoneController.text.isEmpty ||
+        _firstNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final orderProvider = context.read<OrderProvider>();
+
+    if (authProvider.user == null) return;
+
+    // Combine the address fields for Firestore
+    final fullAddress = '${_addressController.text}, ${_cityController.text}, ${_zipController.text}';
+
+    // Send to Firestore
+    final error = await orderProvider.placeOrder(
+      userId: authProvider.user!.uid, 
+      totalAmount: cartProvider.totalAmount,
+      cartItems: cartProvider.items.values.toList(),
+      deliveryAddress: fullAddress,
+      phone: _phoneController.text,
+    );
+
+    // Handle success or failure
+    if (error == null) {
+      cartProvider.clearCart();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order placed successfully!')),
+        );
+        context.go('/home'); 
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // 2. Fetch live cart data and loading state
+    final cart = context.watch<CartProvider>();
+    final isLoading = context.watch<OrderProvider>().isLoading;
+    final cartItems = cart.items.values.toList();
+    
+    final subtotal = cart.totalAmount;
+    final taxes = 0.0; // Adjust if you add tax calculation logic
+    final total = subtotal + taxes;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -45,25 +127,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SectionHeader(title: 'SHIPPING ADDRESS', showChevron: true),
+                  const _SectionHeader(title: 'SHIPPING ADDRESS', showChevron: true),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildInputField('Last Name', 'Meleena')),
+                      Expanded(child: _buildInputField('Last Name', 'Perera', _lastNameController)),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildInputField('First Name', 'Karunarathna')),
+                      Expanded(child: _buildInputField('First Name', 'Kasun', _firstNameController)),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildInputField('Street Address', 'De Saram Rd, Dehiwala-Mount Lavinia'),
+                  _buildInputField('Street Address', 'e.g. Galle Rd, Baddegama', _addressController),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildInputField('City', 'Dehiwala')),
+                      Expanded(child: _buildInputField('City', 'e.g. Galle', _cityController)),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildInputField('ZIP code', 'Pinsara')),
+                      Expanded(child: _buildInputField('ZIP code', '80200', _zipController, type: TextInputType.number)),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  // Added Phone field to match your backend logic
+                  _buildInputField('Phone Number', '07X XXX XXXX', _phoneController, type: TextInputType.phone),
                 ],
               ),
             ),
@@ -71,16 +156,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const Divider(height: 1, color: Color(0xFFF0F0F0)),
 
             // DELIVERY SECTION
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     'DELIVERY',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5),
                   ),
-                  const SizedBox(width: 40),
-                  const Expanded(
+                  SizedBox(width: 40),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -90,7 +175,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Colors.black54),
+                  Icon(Icons.chevron_right, color: Colors.black54),
                 ],
               ),
             ),
@@ -103,9 +188,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SectionHeader(title: 'PAYMENT', showChevron: true),
+                  const _SectionHeader(title: 'PAYMENT', showChevron: true),
                   const SizedBox(height: 16),
-                  
                   _buildPaymentCard(
                     id: 'card',
                     icon: Icons.credit_card,
@@ -122,7 +206,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(height: 12),
                   _buildPaymentCard(
                     id: 'paypal',
-                    icon: Icons.language, // Using globe icon as approximation
+                    icon: Icons.language, 
                     title: 'Pay Pal',
                     subtitle: 'Redirect to external wallet',
                   ),
@@ -138,58 +222,55 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _SectionHeader(title: 'ORDER SUMMARY', showChevron: false),
+                  const _SectionHeader(title: 'ORDER SUMMARY', showChevron: false),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F0FF), // Light blue background
+                      color: const Color(0xFFE8F0FF), 
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Your Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
-                            SizedBox(height: 4),
-                            Text('Selected 2 items', style: TextStyle(fontSize: 13, color: Colors.black87)),
+                            const Text('Your Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
+                            const SizedBox(height: 4),
+                            // 3. Dynamic item count
+                            Text('Selected ${cart.items.length} items', style: const TextStyle(fontSize: 13, color: Colors.black87)),
                           ],
                         ),
-                        // Overlapping Avatars
+                        // 4. Dynamic Overlapping Avatars (Max 3 to prevent overflow)
                         SizedBox(
-                          width: 70,
+                          width: 80,
                           height: 40,
                           child: Stack(
-                            children: [
-                              Positioned(
-                                right: 0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: const Color(0xFFE8F0FF), width: 2),
+                            children: List.generate(
+                              cartItems.length > 3 ? 3 : cartItems.length,
+                              (index) {
+                                final productImg = cartItems[index].product.image;
+                                // Handle web URL vs local asset
+                                final ImageProvider imgProvider = productImg.startsWith('http') 
+                                    ? NetworkImage(productImg) 
+                                    : AssetImage(productImg) as ImageProvider;
+
+                                return Positioned(
+                                  right: index * 20.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: const Color(0xFFE8F0FF), width: 2),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 18,
+                                      backgroundImage: imgProvider,
+                                    ),
                                   ),
-                                  child: const CircleAvatar(
-                                    radius: 18,
-                                    backgroundImage: AssetImage('assets/images/products/crop-tops.webp'), // Replace with actual asset
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                right: 25,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: const Color(0xFFE8F0FF), width: 2),
-                                  ),
-                                  child: const CircleAvatar(
-                                    radius: 18,
-                                    backgroundImage: AssetImage('assets/images/products/crop-tops-2.webp'), // Replace with actual asset
-                                  ),
-                                ),
-                              ),
-                            ],
+                                );
+                              },
+                            ).reversed.toList(), // Reverse to stack correctly
                           ),
                         ),
                       ],
@@ -207,17 +288,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const _SummaryRow(title: 'Subtotal (2)', value: 'RS.3500.00'),
+                  // 5. Dynamic Totals
+                  _SummaryRow(title: 'Subtotal (${cart.items.length})', value: 'RS.${subtotal.toStringAsFixed(2)}'),
                   const SizedBox(height: 12),
                   const _SummaryRow(title: 'Shipping total', value: 'Free'),
                   const SizedBox(height: 12),
-                  const _SummaryRow(title: 'Taxes', value: 'RS.500.00'),
+                  _SummaryRow(title: 'Taxes', value: 'RS.${taxes.toStringAsFixed(2)}'),
                   const SizedBox(height: 16),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-                      Text('RS.4000.00', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                      const Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                      Text('RS.${total.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -233,18 +315,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                         elevation: 0,
                       ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Order placed successfully')),
-                        );
-                      },
-                      child: const Text(
-                        'Place order',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-                      ),
+                      // 6. Connected logic
+                      onPressed: isLoading ? null : _submitOrder,
+                      child: isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Place order',
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
                     ),
                   ),
-                  const SizedBox(height: 10), // Safe area spacing
+                  const SizedBox(height: 10), 
                 ],
               ),
             ),
@@ -254,8 +335,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  // Helper widget for input fields with labels above them
-  Widget _buildInputField(String label, String hint) {
+  // FIXED: Converted to actual TextField so users can type in it
+  Widget _buildInputField(String label, String hint, TextEditingController controller, {TextInputType type = TextInputType.text}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -273,16 +354,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            hint,
-            style: const TextStyle(color: Colors.black54, fontSize: 14),
+          child: TextField(
+            controller: controller,
+            keyboardType: type,
+            style: const TextStyle(color: Colors.black87, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+            ),
           ),
         ),
       ],
     );
   }
 
-  // Helper widget for Payment selection cards
   Widget _buildPaymentCard({
     required String id,
     required IconData icon,

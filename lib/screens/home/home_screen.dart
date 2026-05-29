@@ -3,12 +3,15 @@ import 'package:go_router/go_router.dart';
 import '../../models/product.dart';
 import '../../data/dummy_data.dart';
 import '../../widgets/common/bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
+import '../../providers/product_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final productProvider = context.watch<ProductProvider>();
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
       body: SafeArea(
@@ -172,18 +175,34 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Trending Now Grid (UPDATED to use dummyProducts map)
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 20,
-                childAspectRatio: 0.65,
-                // Generates UI dynamically from the dummyProducts list
-                children: dummyProducts.map((product) {
-                  return _ProductCard(product: product);
-                }).toList(),
-              ),
+              productProvider.isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.black),
+                      ),
+                    )
+                  : productProvider.products.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Text(
+                          'No products available right now.',
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ),
+                    )
+                  : GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 0.65,
+                      children: productProvider.products.map((product) {
+                        return _ProductCard(product: product);
+                      }).toList(),
+                    ),
 
               const SizedBox(height: 30),
             ],
@@ -321,11 +340,17 @@ class _ProductCard extends StatelessWidget {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                product.image,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: product.image.startsWith('http')
+                  ? Image.network(
+                      product.image,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      product.image,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
           const SizedBox(height: 10),

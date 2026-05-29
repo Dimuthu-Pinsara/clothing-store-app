@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmController = TextEditingController();
+
+  bool _isLoading = false;
+
+  // Don't forget to dispose them!
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7), // Light grey background from mockup
+      backgroundColor: const Color(
+        0xFFF7F7F7,
+      ), // Light grey background from mockup
       body: SafeArea(
         child: Stack(
           children: [
@@ -52,37 +77,42 @@ class RegisterScreen extends StatelessWidget {
 
                   const Text(
                     'Enter your email to sign up for this app',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
                   ),
 
                   const SizedBox(height: 24),
 
                   // Form Fields
                   _inputLabel('Name'),
-                  const _AuthTextField(hintText: 'Perera'),
+                  _AuthTextField(
+                    hintText: 'Perera',
+                    controller: _nameController,
+                  ),
 
                   const SizedBox(height: 16),
 
                   _inputLabel('Email'),
-                  const _AuthTextField(hintText: 'email@domain.com'),
+                  _AuthTextField(
+                    hintText: 'email@domain.com',
+                    controller: _emailController,
+                  ),
 
                   const SizedBox(height: 16),
 
                   _inputLabel('Password'),
-                  const _AuthTextField(
+                  _AuthTextField(
                     hintText: 'xxxxxxx',
                     obscureText: true,
+                    controller: _passwordController,
                   ),
 
                   const SizedBox(height: 16),
 
                   _inputLabel('Confirm Password'),
-                  const _AuthTextField(
+                  _AuthTextField(
                     hintText: 'xxxxxxx',
                     obscureText: true,
+                    controller: _confirmController,
                   ),
 
                   const SizedBox(height: 24),
@@ -92,7 +122,46 @@ class RegisterScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 48, // Taller button for better tap area
                     child: ElevatedButton(
-                      onPressed: () => context.go('/'),
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              // Check if passwords match first
+                              if (_passwordController.text !=
+                                  _confirmController.text) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Passwords do not match!'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              setState(() => _isLoading = true);
+
+                              final error = await context
+                                  .read<AuthProvider>()
+                                  .register(
+                                    _emailController.text,
+                                    _passwordController.text,
+                                  );
+
+                              setState(() => _isLoading = false);
+
+                              if (error == null) {
+                                // Optional: You can save the _nameController.text to a user profile database here later
+                                if (context.mounted) context.go('/home');
+                              } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
@@ -116,10 +185,7 @@ class RegisterScreen extends StatelessWidget {
                   // Divider
                   const Text(
                     'or',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
 
                   const SizedBox(height: 16),
@@ -227,12 +293,12 @@ class RegisterScreen extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFCECECE), // Grey background to match mockup
+          backgroundColor: const Color(
+            0xFFCECECE,
+          ), // Grey background to match mockup
           foregroundColor: Colors.black,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -242,16 +308,17 @@ class RegisterScreen extends StatelessWidget {
               width: 22,
               height: 22,
               errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.image_not_supported, color: Colors.black54, size: 22);
+                return const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.black54,
+                  size: 22,
+                );
               },
             ),
             const SizedBox(width: 12),
             Text(
               text,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -264,25 +331,25 @@ class RegisterScreen extends StatelessWidget {
 class _AuthTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
+  final TextEditingController? controller;
 
   const _AuthTextField({
     required this.hintText,
     this.obscureText = false,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48, 
+      height: 48,
       child: TextField(
+        controller: controller,
         obscureText: obscureText,
         style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Colors.black38,
-            fontSize: 15,
-          ),
+          hintStyle: const TextStyle(color: Colors.black38, fontSize: 15),
           filled: true,
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16),

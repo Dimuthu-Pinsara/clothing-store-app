@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "978426860847",
+    "project_id": "stylesync-6a6fa",
+    "storage_bucket": "stylesync-6a6fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978426860847:android:023f3254414909260e3dda",
+        "android_client_info": {
+          "package_name": "com.example.e_com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB1BBrYcIstrwZ4tWZJtx4pqhHmt8_5LY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

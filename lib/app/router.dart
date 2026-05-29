@@ -8,9 +8,31 @@ import '../screens/cart/cart_screen.dart';
 import '../screens/checkout/checkout_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/notification/notification_screen.dart';
+import '../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+import '../screens/order/order_history_screen.dart';
+import '../screens/profile/edit_profile_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
+  refreshListenable: AuthProvider(),
+  redirect: (context, state) {
+    final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
+    final isGoingToLogin = state.matchedLocation == '/';
+    final isGoingToRegister = state.matchedLocation == '/register';
+
+    // If not logged in, and not trying to login/register, kick to login
+    if (!isAuthenticated && !isGoingToLogin && !isGoingToRegister) {
+      return '/';
+    }
+
+    // If logged in, but trying to go to login screen, kick to home
+    if (isAuthenticated && (isGoingToLogin || isGoingToRegister)) {
+      return '/home';
+    }
+
+    return null; // No redirect needed
+  },
   routes: [
     GoRoute(
       path: '/',
@@ -50,6 +72,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/notifications',
       builder: (context, state) => const NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/orders',
+      builder: (context, state) => const OrderHistoryScreen(),
+    ),
+    GoRoute(
+      path: '/edit-profile',
+      builder: (context, state) => const EditProfileScreen(),
     ),
   ],
 );
